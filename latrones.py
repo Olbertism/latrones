@@ -25,9 +25,20 @@ PIECE_BLACK = (76, 69, 56)
 PIECE_WHITE = (216, 190, 147)
 SELECTED = (40, 194, 96)
 
+INSTRUCTIONS = "<strong>How to play</strong><br>" \
+               "A piece can be moved forwards, backwards or sideways in an unobstructed line. <br>" \
+               "To beat an enemy piece, it has to be encircled from two sides in a straight line. <br>" \
+               "Whoever beats more pieces or blocks all enemy pieces wins." \
+               " <br>" \
+               " <br>" \
+               "<br><strong>About the image: </strong><br>" \
+               "Amazonomachy<br>" \
+               "Roman mosaic emblema (marble and limestone), 2nd half of the 4th century AD. <br>" \
+               "Picture © Marie-Lan Nguyen / Wikimedia Commons"
+
+
 pygame.init()
-
-
+pygame.display.set_caption("Ludus latrunculorum")
 
 # Classes for the game board
 
@@ -65,8 +76,6 @@ class Board(object):
         return "{}, {}".format(self.xAxis, self.yAxis)
 
 
-#classes for the game pieces and their corresponding actions
-
 class Piece(object):
     '''
     parent class for game pieces
@@ -97,7 +106,6 @@ class Piece(object):
         return self
 
 # movements
-
     def isValid(self, aBoard, targetLoc, whitePieces, blackPieces):
         # function to check movement validity, returns True or False
         # if check passed, movement can be executed (realized in movement function)
@@ -108,7 +116,7 @@ class Piece(object):
         xindex = xaxis.index(x)
 
         if self.getPieceLoc()[0] == targetLoc[0]:
-            print("check path for X coord...")
+            #print("check path for X coord...")
             if self.getPieceLoc()[1] < targetLoc[1]:
                 for i in range(self.getPieceLoc()[1], targetLoc[1]):
                     path.append(Board.provideLoc(aBoard, xindex, i))
@@ -122,7 +130,7 @@ class Piece(object):
                 return True
 
         elif self.getPieceLoc()[1] == targetLoc[1]:
-            print("check path for Y coord...")
+            #print("check path for Y coord...")
             a = Board.getX(aBoard).index(self.getPieceLoc()[0])
             b = Board.getX(aBoard).index(targetLoc[0])
             if a < b:
@@ -137,7 +145,6 @@ class Piece(object):
             else:
                 return True
         else:
-
             return False
 
 
@@ -151,7 +158,7 @@ class Piece(object):
         prevLoc = self.getPieceLoc()
         if self.isValid(aBoard, targetLoc, whitePieces, blackPieces):
             self.location = targetLoc
-            print("Moved piece from {} to {}".format(prevLoc, self.location))
+            #print("Moved piece from {} to {}".format(prevLoc, self.location))
             return True
         else:
             #print("invalid movement")
@@ -385,9 +392,7 @@ class Menu(States):
         self.generateScreen()
         self.createElements()
         self.font = pygame.font.SysFont('Arial', 18)
-        self.licence = self.font.render("insert license info here", True, (250,0,0))
-
-
+        self.licence = self.font.render("v0.1.0", True, (250,0,0))
 
     def cleanup(self):
         print("cleaning up Menu state")
@@ -412,19 +417,15 @@ class Menu(States):
                     sys.exit()
         self.manager.process_events(event)
 
-
-
     def update(self, screen, dt):
         self.draw(screen, dt)
 
     def draw(self, screen, dt):
         screen.blit(self.bg, (0, 0))
-        screen.blit(self.licence, (650,780))
+        screen.blit(self.licence, (750,780))
         self.manager.update(dt)
         self.manager.draw_ui(screen)
         pygame.display.update()
-
-
 
     def createElements(self):
         start = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
@@ -435,12 +436,10 @@ class Menu(States):
                                              text='Quit Game',
                                              manager=self.manager)
         self.buttons["quit"] = quit
-        instructions = pygame_gui.elements.ui_text_box.UITextBox("insert instructions",
+        instructions = pygame_gui.elements.ui_text_box.UITextBox(INSTRUCTIONS,
                                                                  relative_rect=pygame.Rect((150, 450), (500, 300)),
                                                                  manager=self.manager)
         self.buttons["instructions"] = instructions
-
-
 
 
 class GameState(States):
@@ -466,7 +465,6 @@ class GameState(States):
         self.manager = pygame_gui.UIManager((WIDTH, HEIGHT + 150))
 
     def get_event(self, event):
-
         if event.type == pygame.K_ESCAPE:
             self.done = True
         if self.session.gameOver:
@@ -580,7 +578,6 @@ class GameState(States):
 
     def selectPiece(self, screen, event):
         selection = []
-
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.buttons["quit"]:
@@ -603,17 +600,16 @@ class GameState(States):
             for piece in self.session.getWhitePieces():
                 if selection == piece.getPieceLoc():
                     id = piece.getPieceID()
-                    print("ID: " + str(id))
+                    #print("ID: " + str(id))
                     return piece
         else:
             for piece in self.session.getBlackPieces():
                 if selection == piece.getPieceLoc():
                     id = piece.getPieceID()
-                    print("ID: " + str(id))
+                    #print("ID: " + str(id))
                     return piece
 
     def validPieceSelection(self, selection):
-
         if self.session.getTurn() % 2 != 0:
             if selection not in self.session.whitePieceLocs():
                 return False
@@ -630,7 +626,7 @@ class GameState(States):
         while event.type != pygame.MOUSEBUTTONDOWN:
             event = pygame.event.poll()
         target = self.convertToLoc(event.pos)
-        print("TARGET: " + str(target))
+        #print("TARGET: " + str(target))
         return target
 
     def gameTurn(self, event):
@@ -747,4 +743,3 @@ app.setup_states(state_dict, 'menu')
 app.main_game_loop()
 pygame.quit()
 sys.exit()
-
